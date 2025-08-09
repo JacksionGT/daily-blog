@@ -1,0 +1,19 @@
+---
+layout: base.njk
+title: 欢迎来到我的博客
+---
+
+<h1>最新文章</h1>
+
+{% set postslist = collections.posts | reverse %}
+{% for post in postslist %}
+    <article class="post-item">
+        <h2>
+            <a href="{{ post.url }}">{{ post.data.title }}</a>
+        </h2>
+        <time datetime="{{ post.date | dateToISO }}">{{ post.date | dateToString }}</time>
+        {% if post.data.description %}
+            <p class="post-description">{{ post.data.description }}</p>
+        {% endif %}
+    </article>
+{% endfor %}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11ty博客教程03：模板和布局系统</title>
+    <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/posts">文章</a>
+        </nav>
+    </header>
+
+    <main>
+        
+<article class="post">
+    <h1>11ty博客教程03：模板和布局系统</h1>
+    <time datetime="2025-08-09T00:00:00.000Z">2025年8月9日</time>
+    
+    <p>在这篇教程中，我们将深入探讨 11ty 的模板系统，学习如何创建可复用的布局和组件。</p>
+<h2>Nunjucks 模板基础</h2>
+<p>我们使用 Nunjucks 作为模板引擎，它提供了强大的模板继承和包含功能。</p>
+<h3>基础布局文件</h3>
+<p>首先看看我们的基础布局文件 <code>_layouts/base.njk</code>：</p>
+<pre><code class="language-nunjucks">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;{{ title }} - {{ site.title }}&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/assets/styles/main.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;nav&gt;
+            &lt;a href=&quot;/&quot;&gt;首页&lt;/a&gt;
+            &lt;a href=&quot;/posts&quot;&gt;文章&lt;/a&gt;
+        &lt;/nav&gt;
+    &lt;/header&gt;
+
+    &lt;main&gt;
+        {{ content | safe }}
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        &lt;p&gt;&amp;copy; {{ site.year }} {{ site.title }}&lt;/p&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+<h3>文章布局</h3>
+<p>文章布局 <code>_layouts/post.njk</code> 继承自基础布局：</p>
+<pre><code class="language-nunjucks">
+---
+layout: base.njk
+---
+
+&lt;article class=&quot;post&quot;&gt;
+    &lt;h1&gt;{{ title }}&lt;/h1&gt;
+    &lt;time datetime=&quot;{{ date | dateToISO }}&quot;&gt;
+        {{ date | dateToString }}
+    &lt;/time&gt;
+    
+    {{ content | safe }}
+&lt;/article&gt;
+
+</code></pre>
+<h2>组件化开发</h2>
+<h3>1. 创建可复用组件</h3>
+<p>在 <code>_includes</code> 目录下创建组件，例如导航组件 <code>nav.njk</code>：</p>
+<pre><code class="language-nunjucks">
+&lt;nav class=&quot;main-nav&quot;&gt;
+    {% for item in navigation %}
+        &lt;a href=&quot;{{ item.url }}&quot; 
+           {% if page.url == item.url %}class=&quot;active&quot;{% endif %}&gt;
+            {{ item.title }}
+        &lt;/a&gt;
+    {% endfor %}
+&lt;/nav&gt;
+
+</code></pre>
+<h3>2. 使用组件</h3>
+<p>在布局中使用组件：</p>
+<pre><code class="language-nunjucks">
+&lt;header&gt;
+    {% include &quot;nav.njk&quot; %}
+&lt;/header&gt;
+
+</code></pre>
+<h2>模板语法详解</h2>
+<h3>1. 变量和过滤器</h3>
+<pre><code class="language-nunjucks">
+{{ variable }}                    {# 显示变量 #}
+{{ title | upper }}              {# 使用过滤器 #}
+{{ content | safe }}             {# 输出不转义的HTML #}
+
+</code></pre>
+<h3>2. 条件语句</h3>
+<pre><code class="language-nunjucks">
+{% if user %}
+    &lt;h1&gt;{{ user.name }}&lt;/h1&gt;
+{% else %}
+    &lt;h1&gt;未登录&lt;/h1&gt;
+{% endif %}
+
+</code></pre>
+<h3>3. 循环</h3>
+<pre><code class="language-nunjucks">
+&lt;ul&gt;
+{% for post in collections.posts %}
+    &lt;li&gt;
+        &lt;a href=&quot;{{ post.url }}&quot;&gt;{{ post.data.title }}&lt;/a&gt;
+    &lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;
+
+</code></pre>
+<h3>4. 宏（Macros）</h3>
+<p>宏是可重用的模板片段，类似函数：</p>
+<pre><code class="language-nunjucks">
+{% macro postCard(post) %}
+&lt;article class=&quot;post-card&quot;&gt;
+    &lt;h2&gt;&lt;a href=&quot;{{ post.url }}&quot;&gt;{{ post.data.title }}&lt;/a&gt;&lt;/h2&gt;
+    &lt;time&gt;{{ post.date | dateToString }}&lt;/time&gt;
+&lt;/article&gt;
+{% endmacro %}
+
+{# 使用宏 #}
+{{ postCard(post) }}
+
+</code></pre>
+<h2>实践技巧</h2>
+<h3>1. 使用 <code>eleventy-navigation</code> 插件</h3>
+<pre><code class="language-javascript">// .eleventy.js
+const eleventyNavigationPlugin = require(&quot;@11ty/eleventy-navigation&quot;);
+eleventyConfig.addPlugin(eleventyNavigationPlugin);
+</code></pre>
+<p>然后在页面中：</p>
+<pre><code class="language-yaml">---
+eleventyNavigation:
+  key: 首页
+  order: 1
+---
+</code></pre>
+<h3>2. 创建面包屑导航</h3>
+<pre><code class="language-nunjucks">
+{% macro breadcrumbs(page) %}
+&lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+    {% set ancestors = page.url | getAncestors %}
+    {% for ancestor in ancestors %}
+        &lt;a href=&quot;{{ ancestor.url }}&quot;&gt;{{ ancestor.title }}&lt;/a&gt; /
+    {% endfor %}
+    {{ page.title }}
+&lt;/nav&gt;
+{% endmacro %}
+
+</code></pre>
+<h2>进阶应用</h2>
+<ol>
+<li><strong>动态生成元数据</strong>：根据页面内容自动生成描述和关键词</li>
+<li><strong>响应式图片处理</strong>：使用 11ty 图像插件优化图片</li>
+<li><strong>自定义短代码</strong>：创建特殊的内容块</li>
+</ol>
+<h2>下一篇预告</h2>
+<p>在下一篇教程中，我们将学习：</p>
+<ul>
+<li>添加评论系统</li>
+<li>实现搜索功能</li>
+<li>优化构建过程</li>
+<li>部署到生产环境</li>
+</ul>
+
+</article>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 我的博客. All rights reserved.</p>
+    </footer>
+</body>
+</html>

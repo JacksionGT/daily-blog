@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11ty博客教程01：项目初始化和基础概念</title>
+    <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/posts">文章</a>
+        </nav>
+    </header>
+
+    <main>
+        
+<article class="post">
+    <h1>11ty博客教程01：项目初始化和基础概念</h1>
+    <time datetime="2025-08-09T00:00:00.000Z">2025年8月9日</time>
+    
+    <p>在开始构建我们的博客之前，让我们先了解一下 11ty（Eleventy）是什么，以及为什么选择它作为我们的静态站点生成器。</p>
+<h2>什么是 11ty？</h2>
+<p>11ty 是一个简单但功能强大的静态站点生成器。它的特点包括：</p>
+<ul>
+<li>零配置开箱即用</li>
+<li>支持多种模板语言（我们使用 Nunjucks）</li>
+<li>数据级联系统</li>
+<li>快速构建速度</li>
+<li>灵活的目录结构</li>
+</ul>
+<h2>项目初始化</h2>
+<p>首先，我们需要创建一个新项目并安装必要的依赖：</p>
+<pre><code class="language-bash"># 创建项目目录
+mkdir my-11ty-blog
+cd my-11ty-blog
+
+# 初始化 npm 项目
+npm init -y
+
+# 安装 11ty
+npm install @11ty/eleventy --save-dev
+</code></pre>
+<h2>基础目录结构</h2>
+<p>11ty 推荐的目录结构如下：</p>
+<pre><code>.
+├── src/                    # 源文件目录
+│   ├── _includes/         # 可重用的模板片段
+│   ├── _layouts/          # 页面布局模板
+│   ├── assets/           # 静态资源
+│   │   └── styles/      # 样式文件
+│   └── posts/            # 博客文章
+└── .eleventy.js          # 11ty 配置文件
+</code></pre>
+<h2>重要概念解释</h2>
+<h3>1. 模板引擎</h3>
+<p>我们的项目使用 Nunjucks 作为模板引擎。它提供了强大的模板继承和包含功能。示例：</p>
+<pre><code class="language-nunjucks">
+{% extends &quot;base.njk&quot; %}
+
+{% block content %}
+  &lt;h1&gt;{{ title }}&lt;/h1&gt;
+{% endblock %}
+
+</code></pre>
+<h3>2. Front Matter</h3>
+<p>每个页面或文章都可以包含 YAML 格式的 Front Matter，用于定义页面的元数据：</p>
+<pre><code class="language-yaml">---
+title: 文章标题
+date: 2025-08-09
+layout: post.njk
+---
+</code></pre>
+<h3>3. 布局（Layouts）</h3>
+<p>布局文件定义了页面的基本结构，位于 <code>_layouts</code> 目录。我们可以在 Front Matter 中指定使用哪个布局。</p>
+<h2>下一步</h2>
+<p>在下一篇文章中，我们将详细介绍如何配置 11ty，包括：</p>
+<ul>
+<li>创建基础配置文件</li>
+<li>设置数据文件</li>
+<li>配置静态资源处理</li>
+</ul>
+<p>记住：11ty 的理念是&quot;简单优于复杂&quot;。它提供了合理的默认配置，同时保持了高度的可定制性。</p>
+
+</article>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 我的博客. All rights reserved.</p>
+    </footer>
+</body>
+</html>

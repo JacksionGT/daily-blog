@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11ty博客教程02：配置文件和数据管理</title>
+    <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/posts">文章</a>
+        </nav>
+    </header>
+
+    <main>
+        
+<article class="post">
+    <h1>11ty博客教程02：配置文件和数据管理</h1>
+    <time datetime="2025-08-09T00:00:00.000Z">2025年8月9日</time>
+    
+    <p>在上一篇文章中，我们了解了 11ty 的基础概念。现在，让我们深入了解如何配置 11ty 项目，以及如何管理数据。</p>
+<h2>.eleventy.js 配置文件</h2>
+<p>这是 11ty 的核心配置文件，让我们逐步解析其内容：</p>
+<pre><code class="language-javascript">module.exports = function(eleventyConfig) {
+  // 复制静态资源
+  eleventyConfig.addPassthroughCopy(&quot;src/assets&quot;);
+  
+  // 配置博客文章集合
+  eleventyConfig.addCollection(&quot;posts&quot;, function(collection) {
+    return collection.getFilteredByGlob(&quot;src/posts/**/*.md&quot;);
+  });
+
+  // 添加自定义过滤器
+  eleventyConfig.addFilter(&quot;dateToString&quot;, function(date) {
+    return new Date(date).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  });
+
+  // 返回配置对象
+  return {
+    dir: {
+      input: &quot;src&quot;,
+      output: &quot;_site&quot;,
+      includes: &quot;_includes&quot;,
+      layouts: &quot;_layouts&quot;
+    }
+  };
+};
+</code></pre>
+<p>让我们详细解释每个部分：</p>
+<h3>1. 静态资源处理</h3>
+<pre><code class="language-javascript">eleventyConfig.addPassthroughCopy(&quot;src/assets&quot;);
+</code></pre>
+<p>这行代码告诉 11ty 将 <code>src/assets</code> 目录下的所有文件原样复制到输出目录。这对于处理图片、CSS 和 JavaScript 文件很有用。</p>
+<h3>2. 集合（Collections）</h3>
+<p>集合是 11ty 中一个强大的概念，它允许你将相关内容组织在一起：</p>
+<pre><code class="language-javascript">eleventyConfig.addCollection(&quot;posts&quot;, function(collection) {
+  return collection.getFilteredByGlob(&quot;src/posts/**/*.md&quot;);
+});
+</code></pre>
+<p>这段代码创建了一个名为 &quot;posts&quot; 的集合，包含了 <code>src/posts</code> 目录下所有的 Markdown 文件。</p>
+<h3>3. 过滤器（Filters）</h3>
+<p>过滤器用于在模板中转换数据：</p>
+<pre><code class="language-javascript">eleventyConfig.addFilter(&quot;dateToString&quot;, function(date) {
+  return new Date(date).toLocaleDateString('zh-CN');
+});
+</code></pre>
+<p>现在我们可以在模板中这样使用：<code>2025年8月9日</code></p>
+<h2>数据管理</h2>
+<p>11ty 提供了强大的数据级联系统，数据可以来自多个源：</p>
+<h3>1. 全局数据文件</h3>
+<p>在 <code>src/_data</code> 目录下的文件会自动成为全局数据。例如 <code>site.js</code>：</p>
+<pre><code class="language-javascript">module.exports = {
+  title: &quot;我的博客&quot;,
+  description: &quot;使用11ty构建的个人博客&quot;,
+  url: &quot;http://localhost:8080&quot;,
+  year: new Date().getFullYear()
+};
+</code></pre>
+<p>这些数据在所有模板中都可以通过 <code>site</code> 对象访问：<code>我的博客</code></p>
+<h3>2. Front Matter 数据</h3>
+<p>每个页面的 Front Matter 中的数据仅对该页面可用：</p>
+<pre><code class="language-yaml">---
+title: 页面标题
+date: 2025-08-09
+---
+</code></pre>
+<h3>3. 目录数据文件</h3>
+<p>可以为整个目录创建默认数据。例如 <code>src/posts/posts.json</code>：</p>
+<pre><code class="language-json">{
+  &quot;layout&quot;: &quot;post.njk&quot;,
+  &quot;tags&quot;: &quot;posts&quot;
+}
+</code></pre>
+<h2>实践练习</h2>
+<p>尝试添加一个新的过滤器，用于：</p>
+<ol>
+<li>截取文章摘要（前 150 个字符）</li>
+<li>格式化日期为&quot;x天前&quot;的形式</li>
+</ol>
+<h2>下一篇预告</h2>
+<p>在下一篇教程中，我们将学习如何：</p>
+<ul>
+<li>创建响应式布局</li>
+<li>添加语法高亮</li>
+<li>实现标签系统</li>
+<li>创建分页导航</li>
+</ul>
+
+</article>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 我的博客. All rights reserved.</p>
+    </footer>
+</body>
+</html>

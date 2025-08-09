@@ -1,0 +1,21 @@
+{
+  "name": "blog3",
+  "version": "1.0.0",
+  "description": "A modern 11ty blog",
+  "main": "index.js",
+  "scripts": {
+    "build:sass": "sass src/assets/styles:_site/assets/styles --style=compressed",
+    "watch:sass": "npm run build:sass -- --watch",
+    "build": "npm run build:sass && eleventy",
+    "dev": "concurrently \"npm run watch:sass\" \"eleventy --serve\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "clean-css-cli": "^5.6.3",
+    "concurrently": "^9.2.0",
+    "sass": "^1.90.0"
+  }
+}

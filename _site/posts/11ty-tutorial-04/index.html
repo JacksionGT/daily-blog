@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11ty博客教程04：高级功能和性能优化</title>
+    <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/posts">文章</a>
+        </nav>
+    </header>
+
+    <main>
+        
+<article class="post">
+    <h1>11ty博客教程04：高级功能和性能优化</h1>
+    <time datetime="2025-08-09T00:00:00.000Z">2025年8月9日</time>
+    
+    <p>在本系列的最后一篇教程中，我们将介绍如何为博客添加高级功能，以及如何优化网站性能。</p>
+<h2>添加标签系统</h2>
+<h3>1. 配置标签集合</h3>
+<p>在 <code>.eleventy.js</code> 中添加：</p>
+<pre><code class="language-javascript">// 创建标签页面
+eleventyConfig.addCollection(&quot;tagList&quot;, function(collection) {
+  const tags = new Set();
+  collection.getAll().forEach(item =&gt; {
+    (item.data.tags || []).forEach(tag =&gt; tags.add(tag));
+  });
+  return Array.from(tags).sort();
+});
+</code></pre>
+<h3>2. 创建标签页面模板</h3>
+<p>创建 <code>src/tags.njk</code>：</p>
+<pre><code class="language-nunjucks">
+---
+pagination:
+  data: collections.tagList
+  size: 1
+  alias: tag
+permalink: /tags/{{ tag }}/
+layout: base.njk
+---
+
+&lt;h1&gt;标签: {{ tag }}&lt;/h1&gt;
+
+&lt;div class=&quot;posts-list&quot;&gt;
+{% set taglist = collections[tag] %}
+{% for post in taglist | reverse %}
+  &lt;article class=&quot;post-item&quot;&gt;
+    &lt;h2&gt;&lt;a href=&quot;{{ post.url }}&quot;&gt;{{ post.data.title }}&lt;/a&gt;&lt;/h2&gt;
+    &lt;time&gt;{{ post.date | dateToString }}&lt;/time&gt;
+  &lt;/article&gt;
+{% endfor %}
+&lt;/div&gt;
+
+</code></pre>
+<h2>添加搜索功能</h2>
+<p>我们可以使用 Lunr.js 实现客户端搜索：</p>
+<h3>1. 生成搜索索引</h3>
+<p>创建 <code>src/_data/searchIndex.js</code>：</p>
+<pre><code class="language-javascript">const lunr = require('lunr');
+
+module.exports = function(collection) {
+  const posts = collection.getFilteredByTag(&quot;posts&quot;);
+  
+  const index = lunr(function() {
+    this.field(&quot;title&quot;);
+    this.field(&quot;content&quot;);
+    this.ref(&quot;id&quot;);
+
+    posts.forEach((post, idx) =&gt; {
+      this.add({
+        title: post.data.title,
+        content: post.template.frontMatter.content,
+        id: idx
+      });
+    });
+  });
+
+  return {
+    index: index,
+    posts: posts.map(post =&gt; ({
+      title: post.data.title,
+      url: post.url,
+      date: post.date
+    }))
+  };
+};
+</code></pre>
+<h3>2. 实现搜索界面</h3>
+<pre><code class="language-html">&lt;div class=&quot;search&quot;&gt;
+  &lt;input type=&quot;text&quot; id=&quot;search-input&quot; placeholder=&quot;搜索文章...&quot;&gt;
+  &lt;div id=&quot;search-results&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<h2>性能优化</h2>
+<h3>1. 资源优化</h3>
+<p>在 <code>.eleventy.js</code> 中添加：</p>
+<pre><code class="language-javascript">// 压缩 HTML
+const htmlmin = require(&quot;html-minifier&quot;);
+eleventyConfig.addTransform(&quot;htmlmin&quot;, function(content, outputPath) {
+  if(outputPath &amp;&amp; outputPath.endsWith(&quot;.html&quot;)) {
+    return htmlmin.minify(content, {
+      useShortDoctype: true,
+      removeComments: true,
+      collapseWhitespace: true
+    });
+  }
+  return content;
+});
+</code></pre>
+<h3>2. 图片优化</h3>
+<p>使用 11ty 图像插件：</p>
+<pre><code class="language-javascript">const Image = require(&quot;@11ty/eleventy-img&quot;);
+
+// 添加图片短代码
+eleventyConfig.addShortcode(&quot;image&quot;, async function(src, alt) {
+  const metadata = await Image(src, {
+    widths: [300, 600],
+    formats: [&quot;webp&quot;, &quot;jpeg&quot;],
+    outputDir: &quot;./_site/img/&quot;
+  });
+
+  return `&lt;picture&gt;
+    ${Object.values(metadata).map(imageFormat =&gt; {
+      return `&lt;source type=&quot;${imageFormat[0].sourceType}&quot; srcset=&quot;${imageFormat.map(entry =&gt; entry.srcset).join(&quot;, &quot;)}&quot;&gt;`;
+    }).join(&quot;\n&quot;)}
+    &lt;img src=&quot;${metadata.jpeg[0].url}&quot; alt=&quot;${alt}&quot;&gt;
+  &lt;/picture&gt;`;
+});
+</code></pre>
+<h2>SEO 优化</h2>
+<h3>1. 添加元标签</h3>
+<p>在基础布局中添加：</p>
+<pre><code class="language-html">&lt;meta name=&quot;description&quot; content=&quot;为你的 11ty 博客添加高级功能，并学习如何优化性能以提供更好的用户体验&quot;&gt;
+&lt;meta property=&quot;og:title&quot; content=&quot;11ty博客教程04：高级功能和性能优化 - 我的博客&quot;&gt;
+&lt;meta property=&quot;og:description&quot; content=&quot;为你的 11ty 博客添加高级功能，并学习如何优化性能以提供更好的用户体验&quot;&gt;
+&lt;link rel=&quot;canonical&quot; href=&quot;http://localhost:8080/posts/11ty-tutorial-04/&quot;&gt;
+</code></pre>
+<h3>2. 生成站点地图</h3>
+<p>安装 <code>@11ty/eleventy-plugin-sitemap</code>：</p>
+<pre><code class="language-javascript">const sitemap = require(&quot;@11ty/eleventy-plugin-sitemap&quot;);
+eleventyConfig.addPlugin(sitemap, {
+  sitemap: {
+    hostname: &quot;https://yourblog.com&quot;
+  }
+});
+</code></pre>
+<h2>部署准备</h2>
+<h3>1. 环境配置</h3>
+<p>创建 <code>.env</code> 文件：</p>
+<pre><code>SITE_URL=https://yourblog.com
+ANALYTICS_ID=UA-XXXXX-Y
+</code></pre>
+<h3>2. 构建脚本</h3>
+<p>在 <code>package.json</code> 中添加：</p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;npm run clean &amp;&amp; eleventy&quot;,
+    &quot;clean&quot;: &quot;rm -rf _site&quot;,
+    &quot;debug&quot;: &quot;DEBUG=* eleventy&quot;,
+    &quot;serve&quot;: &quot;eleventy --serve&quot;,
+    &quot;production&quot;: &quot;NODE_ENV=production eleventy&quot;
+  }
+}
+</code></pre>
+<h2>部署到 Netlify</h2>
+<ol>
+<li>创建 <code>netlify.toml</code>：</li>
+</ol>
+<pre><code class="language-toml">[build]
+  command = &quot;npm run production&quot;
+  publish = &quot;_site&quot;
+
+[[plugins]]
+  package = &quot;@netlify/plugin-lighthouse&quot;
+
+[context.production.environment]
+  NODE_VERSION = &quot;16&quot;
+</code></pre>
+<h2>总结</h2>
+<p>至此，我们已经完成了一个功能完整的 11ty 博客系统，包括：</p>
+<ul>
+<li>✅ 文章和标签系统</li>
+<li>✅ 搜索功能</li>
+<li>✅ 性能优化</li>
+<li>✅ SEO 优化</li>
+<li>✅ 部署配置</li>
+</ul>
+<h2>进阶建议</h2>
+<ol>
+<li>添加评论系统（如 Disqus 或 Utterances）</li>
+<li>实现深色模式</li>
+<li>添加 RSS 订阅</li>
+<li>集成统计分析</li>
+<li>实现自动化测试</li>
+</ol>
+<p>希望这个系列教程能帮助你建立起自己的 11ty 博客！如果你有任何问题，欢迎在评论区讨论。</p>
+
+</article>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 我的博客. All rights reserved.</p>
+    </footer>
+</body>
+</html>
