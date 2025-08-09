@@ -4,7 +4,7 @@
   "description": "A modern 11ty blog",
   "main": "index.js",
   "scripts": {
-    "build:sass": "sass src/assets/styles:_site/assets/styles --style=compressed",
+    "build:sass": "sass src/assets/styles:docs/assets/styles --style=compressed",
     "watch:sass": "npm run build:sass -- --watch",
     "build": "npm run build:sass && eleventy",
     "dev": "concurrently \"npm run watch:sass\" \"eleventy --serve\""
