@@ -6,7 +6,6 @@ description: 解决使用Sunshine和Moonlight串流时，PC端和设备端同时
 permalink: "/posts/{{ page.fileSlug }}/"
 ---
 
-# Moonlight串流时仅播放远程音频的解决方案
 
 ## 问题背景
 
