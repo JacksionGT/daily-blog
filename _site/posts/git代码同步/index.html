@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>git代码同步</title>
+    <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/posts">文章</a>
+        </nav>
+    </header>
+
+    <main>
+        
+<article class="post">
+    <h1>git代码同步</h1>
+    <time datetime="2025-08-09T00:00:00.000Z">2025年8月9日</time>
+    
+    <h1>本地空项目</h1>
+<pre><code class="language-sh">echo &quot;# daily-blog&quot; &gt;&gt; README.md
+git init
+git add README.md
+git commit -m &quot;first commit&quot;
+git branch -M main
+git remote add origin git@github.com:JacksionGT/daily-blog.git
+git push -u origin main
+</code></pre>
+<h1>本地已存在项目</h1>
+<pre><code class="language-sh">git remote add origin git@github.com:JacksionGT/daily-blog.git
+git branch -M main
+git push -u origin main
+</code></pre>
+
+</article>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 我的博客. All rights reserved.</p>
+    </footer>
+</body>
+</html>
